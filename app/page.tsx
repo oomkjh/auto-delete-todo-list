@@ -1,27 +1,99 @@
+"use client";
+import React from "react";
 import data from "./data.json";
 
+interface Data {
+  name: string;
+  type: string;
+}
+
 export default function Home() {
-  console.log("test", data);
+  const [fruits, setFruits] = React.useState<Data[]>([]);
+  const [vegetables, setVegetables] = React.useState<Data[]>([]);
+  const [list, setList] = React.useState<Data[]>(data);
+
+  const handleClickList = (item: Data) => {
+    if (item.type === "Fruit") {
+      setFruits((prevFruits) => [...prevFruits, item]);
+    }
+
+    if (item.type === "Vegetable") {
+      setVegetables((prevVegetables) => [...prevVegetables, item]);
+    }
+
+    setList((prevList) =>
+      prevList.filter((listItem) => listItem.name !== item.name)
+    );
+  };
+
+  const handleClickFruit = (item: Data) => {
+    setFruits((prevFruits) =>
+      prevFruits.filter((fruit) => fruit.name !== item.name)
+    );
+    setList((prevList) => [...prevList, item]);
+  };
+
+  const handleClickVegetable = (item: Data) => {
+    setVegetables((prevVegetables) =>
+      prevVegetables.filter((vegetable) => vegetable.name !== item.name)
+    );
+    setList((prevList) => [...prevList, item]);
+  };
 
   return (
-    <div className="flex flex-row p-40 gap-2">
-      <div className="gap-2 flex flex-col">
-        {data.map((item) => (
+    <div className="flex flex-row p-40 h-screen gap-5">
+      {/* List */}
+      <div className="gap-3 flex flex-col">
+        {list.map((item) => (
           <div key={item.name}>
-            <div className="border border-2 border-gray-500 w-50 p-2 text-center cursor-pointer hover:bg-gray-100">
+            <button
+              onClick={() => handleClickList(item)}
+              className="border-2 border-gray-200 w-50 p-2 text-center cursor-pointer hover:bg-gray-100"
+            >
               {item.name}
-            </div>
-            {/* <div>{item.type}</div> */}
+            </button>
           </div>
         ))}
       </div>
-      <div className="bg-green-500">
+
+      {/* Fruit */}
+      <div className="w-50 border-2 border-gray-200">
         <div>
-          <div className="border-red-100">Fruit</div>
+          <div className="border-b-2 border-gray-200 text-center p-1 font-bold">
+            Fruit
+          </div>
+          <div className="gap-2 flex flex-col p-2">
+            {fruits.map((item) => (
+              <button
+                key={item.name}
+                onClick={() => handleClickFruit(item)}
+                className="border-2 border-gray-200 w-auto p-2 text-center cursor-pointer hover:bg-gray-100"
+              >
+                {item.name}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
-      <div className="bg-red-500">
-        <div>Vegetable</div>
+
+      {/* Vegetable */}
+      <div className="w-50 border-2 border-gray-200">
+        <div>
+          <div className="border-b-2 border-gray-200 text-center p-1 font-bold">
+            Vegetable
+          </div>
+          <div className="gap-2 flex flex-col p-2">
+            {vegetables.map((item) => (
+              <button
+                key={item.name}
+                onClick={() => handleClickVegetable(item)}
+                className="border-2 border-gray-200 w-auto p-2 text-center cursor-pointer hover:bg-gray-100"
+              >
+                {item.name}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );
