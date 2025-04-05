@@ -15,21 +15,30 @@ export default function Home() {
   const handleClickList = (item: Data) => {
     if (item.type === "Fruit") {
       setFruits((prevFruits) => [...prevFruits, item]);
-    }
-
-    if (item.type === "Vegetable") {
+    } else if (item.type === "Vegetable") {
       setVegetables((prevVegetables) => [...prevVegetables, item]);
     }
 
     setList((prevList) =>
       prevList.filter((listItem) => listItem.name !== item.name)
     );
+
+    setTimeout(() => {
+      if (item.type === "Fruit") {
+        setFruits((prev) => prev.filter((i) => i.name !== item.name));
+      } else if (item.type === "Vegetable") {
+        setVegetables((prev) => prev.filter((i) => i.name !== item.name));
+      }
+
+      setList((prev) => [...prev, item]);
+    }, 5000);
   };
 
   const handleClickFruit = (item: Data) => {
     setFruits((prevFruits) =>
       prevFruits.filter((fruit) => fruit.name !== item.name)
     );
+
     setList((prevList) => [...prevList, item]);
   };
 
@@ -37,6 +46,7 @@ export default function Home() {
     setVegetables((prevVegetables) =>
       prevVegetables.filter((vegetable) => vegetable.name !== item.name)
     );
+
     setList((prevList) => [...prevList, item]);
   };
 
