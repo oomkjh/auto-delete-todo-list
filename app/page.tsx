@@ -11,6 +11,7 @@ export default function Home() {
   const [fruits, setFruits] = React.useState<Data[]>([]);
   const [vegetables, setVegetables] = React.useState<Data[]>([]);
   const [list, setList] = React.useState<Data[]>(data);
+  const [lastMovedItem, setLastMovedItem] = React.useState<Data[]>([]);
 
   const handleClickList = (item: Data) => {
     if (item.type === "Fruit") {
@@ -22,29 +23,42 @@ export default function Home() {
     setList((prevList) =>
       prevList.filter((listItem) => listItem.name !== item.name)
     );
-
-    setTimeout(() => {
-      if (item.type === "Fruit") {
-        setFruits((prev) => {
-          const exists = prev.find((i) => i.name === item.name);
-          if (!exists) return prev;
-          return prev.filter((i) => i.name !== item.name);
-        });
-      } else if (item.type === "Vegetable") {
-        setVegetables((prev) => {
-          const exists = prev.find((i) => i.name === item.name);
-          if (!exists) return prev;
-          return prev.filter((i) => i.name !== item.name);
-        });
-      }
-
-      setList((prev) => {
-        const exists = prev.find((i) => i.name === item.name);
-        if (exists) return prev;
-        return [...prev, item];
-      });
-    }, 5000);
+    setLastMovedItem((prev) => [...prev, item]);
   };
+
+  React.useEffect(() => {
+    if (lastMovedItem.length === 0) return;
+
+    lastMovedItem.forEach((item) => {
+      const timer = setTimeout(() => {
+        if (item.type === "Fruit") {
+          setFruits((prev) => {
+            const exists = prev.find((i) => i.name === item.name);
+            if (!exists) return prev;
+            return prev.filter((i) => i.name !== item.name);
+          });
+        } else if (item.type === "Vegetable") {
+          setVegetables((prev) => {
+            const exists = prev.find((i) => i.name === item.name);
+            if (!exists) return prev;
+            return prev.filter((i) => i.name !== item.name);
+          });
+        }
+
+        setList((prev) => {
+          const exists = prev.find((i) => i.name === item.name);
+          if (exists) return prev;
+          return [...prev, item];
+        });
+
+        setLastMovedItem((prev) =>
+          prev.filter((queued) => queued.name !== item.name)
+        );
+      }, 5000);
+
+      return () => clearTimeout(timer);
+    });
+  }, [lastMovedItem]);
 
   const handleClickFruit = (item: Data) => {
     setFruits((prevFruits) =>
