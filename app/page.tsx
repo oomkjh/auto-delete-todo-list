@@ -25,12 +25,24 @@ export default function Home() {
 
     setTimeout(() => {
       if (item.type === "Fruit") {
-        setFruits((prev) => prev.filter((i) => i.name !== item.name));
+        setFruits((prev) => {
+          const exists = prev.find((i) => i.name === item.name);
+          if (!exists) return prev;
+          return prev.filter((i) => i.name !== item.name);
+        });
       } else if (item.type === "Vegetable") {
-        setVegetables((prev) => prev.filter((i) => i.name !== item.name));
+        setVegetables((prev) => {
+          const exists = prev.find((i) => i.name === item.name);
+          if (!exists) return prev;
+          return prev.filter((i) => i.name !== item.name);
+        });
       }
 
-      setList((prev) => [...prev, item]);
+      setList((prev) => {
+        const exists = prev.find((i) => i.name === item.name);
+        if (exists) return prev;
+        return [...prev, item];
+      });
     }, 5000);
   };
 
