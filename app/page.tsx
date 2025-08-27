@@ -1,135 +1,67 @@
 "use client";
 import React from "react";
 import data from "./data.json";
+import ItemColumn from "./components/ItemColumn";
 
 interface Data {
   name: string;
   type: string;
 }
 
+type Categories = Record<string, Data[]>;
+
 export default function Home() {
-  const [fruits, setFruits] = React.useState<Data[]>([]);
-  const [vegetables, setVegetables] = React.useState<Data[]>([]);
   const [list, setList] = React.useState<Data[]>(data);
-  const [lastMovedItem, setLastMovedItem] = React.useState<Data[]>([]);
+  const [categories, setCategories] = React.useState<Categories>({
+    Fruit: [],
+    Vegetable: [],
+  });
 
-  const handleClickList = (item: Data) => {
-    if (item.type === "Fruit") {
-      setFruits((prevFruits) => [...prevFruits, item]);
-    } else if (item.type === "Vegetable") {
-      setVegetables((prevVegetables) => [...prevVegetables, item]);
-    }
+  const moveToCategory = (item: Data) => {
+    setList((prev) => prev.filter((i) => i.name !== item.name));
+    setCategories((prev) => ({
+      ...prev,
+      [item.type]: [...prev[item.type], item],
+    }));
 
-    setList((prevList) =>
-      prevList.filter((listItem) => listItem.name !== item.name)
-    );
-    setLastMovedItem((prev) => [...prev, item]);
+    setTimeout(() => {
+      setCategories((prev) => {
+        const exists = prev[item.type].some((i) => i.name === item.name);
+        if (!exists) return prev;
+        setList((listPrev) => [...listPrev, item]);
+        return {
+          ...prev,
+          [item.type]: prev[item.type].filter((i) => i.name !== item.name),
+        };
+      });
+    }, 5000);
   };
 
-  React.useEffect(() => {
-    if (lastMovedItem.length === 0) return;
-
-    lastMovedItem.forEach((item) => {
-      const timer = setTimeout(() => {
-        if (item.type === "Fruit") {
-          setFruits((prev) => {
-            const exists = prev.find((i) => i.name === item.name);
-            if (!exists) return prev;
-            return prev.filter((i) => i.name !== item.name);
-          });
-        } else if (item.type === "Vegetable") {
-          setVegetables((prev) => {
-            const exists = prev.find((i) => i.name === item.name);
-            if (!exists) return prev;
-            return prev.filter((i) => i.name !== item.name);
-          });
-        }
-
-        setList((prev) => {
-          const exists = prev.find((i) => i.name === item.name);
-          if (exists) return prev;
-          return [...prev, item];
-        });
-
-        setLastMovedItem((prev) =>
-          prev.filter((queued) => queued.name !== item.name)
-        );
-      }, 5000);
-
-      return () => clearTimeout(timer);
-    });
-  }, [lastMovedItem]);
-
-  const handleClickFruit = (item: Data) => {
-    setFruits((prevFruits) =>
-      prevFruits.filter((fruit) => fruit.name !== item.name)
-    );
-
-    setList((prevList) => [...prevList, item]);
-  };
-
-  const handleClickVegetable = (item: Data) => {
-    setVegetables((prevVegetables) =>
-      prevVegetables.filter((vegetable) => vegetable.name !== item.name)
-    );
-
-    setList((prevList) => [...prevList, item]);
+  const moveToList = (category: string, item: Data) => {
+    setCategories((prev) => ({
+      ...prev,
+      [category]: prev[category].filter((i) => i.name !== item.name),
+    }));
+    setList((prev) => [...prev, item]);
   };
 
   return (
-    <div className="flex flex-row p-40 h-screen gap-5">
-      {/* List */}
-      <div className="gap-3 flex flex-col">
-        {list.map((item) => (
-          <div key={item.name}>
-            <button
-              onClick={() => handleClickList(item)}
-              className="border-2 border-gray-200 w-50 p-2 text-center cursor-pointer hover:bg-gray-100"
-            >
-              {item.name}
-            </button>
-          </div>
-        ))}
-      </div>
-
-      {/* Fruit */}
-      <div className="w-50 border-2 border-gray-200">
-        <div>
-          <div className="border-b-2 border-gray-200 text-center p-1 font-bold">
-            Fruit
-          </div>
-          <div className="gap-2 flex flex-col p-2">
-            {fruits.map((item) => (
-              <button
-                key={item.name}
-                onClick={() => handleClickFruit(item)}
-                className="border-2 border-gray-200 w-auto p-2 text-center cursor-pointer hover:bg-gray-100"
-              >
-                {item.name}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Vegetable */}
-      <div className="w-50 border-2 border-gray-200">
-        <div>
-          <div className="border-b-2 border-gray-200 text-center p-1 font-bold">
-            Vegetable
-          </div>
-          <div className="gap-2 flex flex-col p-2">
-            {vegetables.map((item) => (
-              <button
-                key={item.name}
-                onClick={() => handleClickVegetable(item)}
-                className="border-2 border-gray-200 w-auto p-2 text-center cursor-pointer hover:bg-gray-100"
-              >
-                {item.name}
-              </button>
-            ))}
-          </div>
-        </div>
+    <div className="max-w-5xl mx-auto p-8">
+      <h1 className="text-2xl font-bold text-center mb-8">
+        Auto Delete Todo List
+      </h1>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <ItemColumn title="Items" items={list} onItemClick={moveToCategory} />
+        <ItemColumn
+          title="Fruit"
+          items={categories.Fruit}
+          onItemClick={(item) => moveToList("Fruit", item)}
+        />
+        <ItemColumn
+          title="Vegetable"
+          items={categories.Vegetable}
+          onItemClick={(item) => moveToList("Vegetable", item)}
+        />
       </div>
     </div>
   );

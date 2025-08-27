@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
 body {
-  max-width: 50%;
-  margin: auto;
+  margin: 0;
+  background-color: #f9fafb;
 }
